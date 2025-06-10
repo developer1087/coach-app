@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  TRAINER
+  TRAINEE
+}
+
+enum SessionType {
+  PERSONAL
+  PAIR
+  GROUP
+}
+
+enum PurchaseType {
+  PACKAGE   // רכישה מראש של אימונים
+  SESSION   // חיוב על אימון שבוצע
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  role          Role
+  trainerId     String?   // אם המשתמש הוא מתאמן – למי הוא שייך
+  trainer       User?     @relation("TrainerToTrainees", fields: [trainerId], references: [id])
+  trainees      User[]    @relation("TrainerToTrainees")
+  sessions      Session[]
+  purchases     Purchase[]
+  payments      Payment[]
+
+  // אופציונלי: מידע נוסף לעתיד
+  goals         String?
+  tasks         String?
+  medicalInfo   String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Session {
+  id            String       @id @default(cuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  type          SessionType
+  date          DateTime
+  isCompleted   Boolean      @default(false)
+  coveredBy     CoveredSession?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Purchase {
+  id            String       @id @default(cuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  type          PurchaseType
+  quantity      Int          // כמה אימונים כלולים, אם זה חבילה
+  unitPrice     Float        // מחיר ליחידה
+  totalPrice    Float
+  covered       CoveredSession[]
+  payments      PaymentOnPurchase[]
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Payment {
+  id            String       @id @default(cuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  amount        Float
+  method        String       // "cash", "credit", etc.
+  note          String?
+  receiptUrl    String?      // קישור לקבלה (בהמשך)
+  purchases     PaymentOnPurchase[]
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model PaymentOnPurchase {
+  id            String       @id @default(cuid())
+  paymentId     String
+  purchaseId    String
+  amount        Float
+
+  payment       Payment      @relation(fields: [paymentId], references: [id])
+  purchase      Purchase     @relation(fields: [purchaseId], references: [id])
+}
+
+model CoveredSession {
+  id            String       @id @default(cuid())
+  sessionId     String
+  purchaseId    String
+
+  session       Session      @relation(fields: [sessionId], references: [id])
+  purchase      Purchase     @relation(fields: [purchaseId], references: [id])
+}
