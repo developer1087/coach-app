@@ -8,6 +8,7 @@ export async function getTrainees() {
     include: {
       sessions: true,
       payments: true,
+      purchases: true,
     },
   });
 
@@ -18,6 +19,6 @@ export async function getTrainees() {
     sessionsCount: t.sessions.length,
     balance:
       t.payments.reduce((sum, p) => sum + p.amount, 0) -
-      t.sessions.reduce((sum, s) => sum + s.price, 0),
+      t.purchases.reduce((sum, purchase) => sum + purchase.totalPrice, 0),
   }));
 }
