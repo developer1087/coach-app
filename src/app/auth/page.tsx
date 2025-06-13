@@ -1,5 +1,5 @@
 // app/auth/page.tsx
-import { AuthForm } from "@/components/auth/AuthForm";
+import { AuthForm } from "@/app/auth/_components/AuthForm";
 
 export default function AuthPage() {
   return (

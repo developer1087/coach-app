@@ -1,6 +1,6 @@
 // app/dashboard/trainees/page.tsx
 import { getTrainees } from "@/lib/actions/trainee.actions"; 
-import TraineeCard from "@/components/trainees/TraineeCard";
+import TraineeCard from "@/app/dashboard/trainees/_components/TraineeCard";
 
 export default async function TraineesPage() {
   const trainees = await getTrainees();

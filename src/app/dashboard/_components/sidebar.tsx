@@ -1,3 +1,4 @@
+"use client";
 // components/dashboard/sidebar.tsx
 import Link from "next/link";
 import { LogOut, Users, Calendar, DollarSign, BarChart2, Settings, Bell } from "lucide-react";
