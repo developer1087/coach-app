@@ -42,12 +42,26 @@ export function AuthForm() {
         userCredential = await signInWithEmailAndPassword(auth, email, password);
       }
 
-      // כאן אפשר להוסיף לוגיקה נוספת אם רוצים (למשל לשלוח טוקן לשרת, לאתחל סטייט וכו')
+      // Get ID token
+      const idToken = await userCredential.user.getIdToken();
 
-      // ניווט ל-dashboard
+      // Call /api/session to create session cookie
+      const response = await fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: idToken }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Session creation failed with no JSON response" }));
+        throw new Error(errorData.error || "Session creation failed");
+      }
+      // const sessionData = await response.json(); // Optional: use if needed
+
+      // Navigate to dashboard
       router.push("/dashboard");
     } catch (error: any) {
-      // טיפול בשגיאות Firebase
+      // Handle Firebase and fetch errors
       let message = "Something went wrong";
 
       if (error.code) {
