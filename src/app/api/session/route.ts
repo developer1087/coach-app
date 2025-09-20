@@ -23,13 +23,21 @@ export async function POST(req: NextRequest) {
       create: {
         id: uid,
         email,
-        fullName: name ?? "משתמש חדש",
-        role: "coach",
+        name: name ?? "משתמש חדש",
+        role: "TRAINER",
         session,
       },
     });
 
-    return NextResponse.json({ ok: true });
+    const response = NextResponse.json({ ok: true });
+    response.cookies.set("session", session, {
+      maxAge: 60 * 60 * 24 * 5, // 5 days
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
+    return response;
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });

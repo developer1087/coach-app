@@ -99,7 +99,7 @@ model PaymentOnPurchase {
 
 model CoveredSession {
   id            String       @id @default(cuid())
-  sessionId     String
+  sessionId     String       @unique
   purchaseId    String
 
   session       Session      @relation(fields: [sessionId], references: [id])
